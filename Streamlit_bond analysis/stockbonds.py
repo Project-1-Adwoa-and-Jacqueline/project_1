@@ -74,15 +74,16 @@ else:
     ibonds_path= Path("ibonds_cleaned_data.csv")
     ibonds_df = pd.read_csv(ibonds_path)
 
-    #Set date as index and drop column, "Unnamed:0"
-    ibonds_df.set_index("date").head(10)
-    ibonds_df.drop(columns=['Unnamed: 0'], inplace=True)
+   
+    # annualize variable interest rate
+    ibonds_df["annualized six-month variable interest rate"] = np.maximum((ibonds_df["six-month inflation rate"] * 2), 0)
 
-    #sum fixed rate and 6-month inflation rate 
-    ibonds_df['total_inflation rate']= ibonds_df['fixed rate'] + ibonds_df['six-month inflation rate']
+    # combined rate
+    ibonds_df["aggregate annualized interest rate"] = ibonds_df["annualized six-month variable interest rate"] + ibonds_df["fixed rate"]
+    ibonds_df.head()
 
-    # drop fixed rate and six-month inflation rate to ease standard deviation calculation
-    new_ibondsdf= ibonds_df[['total_inflation rate']]
+  # drop fixed rate and six-month inflation rate to ease standard deviation calculation
+    new_ibondsdf= ibonds_df[ ['annualized six-month variable interest rate', 'aggregate annualized interest rate'] ]
     #calculate standard deviation
     st_dev = new_ibondsdf.std()
     #Get yearly standard deviation
