@@ -82,24 +82,27 @@ else:
     ibonds_df["aggregate annualized interest rate"] = ibonds_df["annualized six-month variable interest rate"] + ibonds_df["fixed rate"]
     ibonds_df.head()
 
-  # drop fixed rate and six-month inflation rate to ease standard deviation calculation
-    new_ibondsdf= ibonds_df[ ['annualized six-month variable interest rate', 'aggregate annualized interest rate'] ]
-    #calculate standard deviation
-    st_dev = new_ibondsdf.std()
-    #Get yearly standard deviation
-    yearly_std = st_dev * np.sqrt(252)
-    # Get the sharpe ratio
-    sharpe= (new_ibondsdf.mean()*252)/ (yearly_std)
-    # First, get the daily standard deviations of all portfolios
-    #Visualize sharpe ratio for Ibond
-    #plot_1 = sharpe.plot(kind='bar')
-    st.title("Sharpe Ratio For IBonds")
-    st.bar_chart(sharpe)
+    #locate 2022 risk free rate to compare with stocks
+    ibonds_df=ibonds_df[48:50]
+
+   # drop fixed rate and six-month inflation rate to ease visualization
+    new_ibondsdf= ibonds_df[ ['date','aggregate annualized interest rate'] ]
+    new_ibondsdf.head().set_index('date', inplace=True)
+    
+    # plot_1 = sharpe.plot(kind='bar')
+    # new_ibondsdf.plot(kind='bar')
+    st.title("Ibonds Interest Rate")
+    st.bar_chart(new_ibondsdf)
+
+    #calculate mean of the annualized risk free rate
+    rf_rate=ibonds_df['aggregate annualized interest rate'].mean()
 
     std_dev = df_combined.std()
     # Calculate the annualized standard deviation using 252 trading days
     annual_std = std_dev * np.sqrt(252)
-    sharpe_ratio = (df_combined.mean()*252)/ (annual_std)
+    annualized_return=df_combined.mean()
+    sharpe_ratio = (annualized_return - rf_rate) / annual_std
+    sharpe_ratio.sort_values(ascending=False)
     #print(sharpe_ratio.sort_values(ascending=False))
 
     st.title("Sharpe Ratio For Stocks and S&P500 ")
